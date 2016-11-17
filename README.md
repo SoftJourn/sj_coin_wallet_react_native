@@ -8,7 +8,13 @@ https://www.youtube.com/watch?v=mYz7EG4oJUo
 To generate public & private key into a scannable QR code, you can use Google Charts:
 https://chart.googleapis.com/chart?chs=200x290&cht=qr&chl=HEXENCODEDKEY
 
-### Install notes
+### Dev setup notes
+```
+npm install
+react-native run-ios
+```
+
+### App run notes
 1. Check/change Eris service URL first
 2. Select your account address from the Address Book list
 3. Scan public & private keys
