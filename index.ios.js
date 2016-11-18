@@ -12,6 +12,7 @@ import {
   TextInput,
   Image,
   Alert,
+  AlertIOS,
   TouchableHighlight,
   ActivityIndicator,
   View,
@@ -88,8 +89,21 @@ class SJCoinWallet extends Component {
       this.props.navigator.push({
         title: 'Address Book',
         component: AddressBook,
-        passProps: {accounts: accounts, sending: sending, parent: this}
-      });      
+        passProps: {
+          accounts: accounts, 
+          sending: sending, 
+          parent: this,
+          onUnmount: async(sending) => {
+            if (sending) {
+              AlertIOS.prompt(
+                'Enter amount to send',
+                null,
+                text => this.sendCoins(this.state.toAddress, text)
+              );
+            }
+          }
+        }
+      });   
     } else {
       this.setState({ message: 'Accounts not loaded; please try again.'});
     }
@@ -97,6 +111,15 @@ class SJCoinWallet extends Component {
 
   _sendCoins(address, amount) {
     var myString = SJCoinContract.Send(this, this.state.endpoint_url, address, amount, this.state.priv_key);
+  }
+
+  sendCoins(address, text) {
+    var amount = parseInt(text);
+    if (amount>0) {
+      this._sendCoins(address, amount);  
+    } else {
+      Alert.alert('Error', "Invalid amount entered");
+    }
   }
 
   onRefreshPressed() {

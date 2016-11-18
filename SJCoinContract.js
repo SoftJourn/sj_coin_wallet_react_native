@@ -34,7 +34,7 @@ exports.Send = function(parent, url, toAddress, amount, privateKey) {
       fee: 0
     }).then(x => {
       if (x.result==null && x.error!=null) {
-        alert(x.error.message+"");
+        alert(x.error.message);
       } else {
         //alert(JSON.stringify(x));  
         Alert.alert("Transaction ID",""+JSON.stringify(x.result[1].tx_id)); 
@@ -83,6 +83,12 @@ exports.QueryBalance = function(parent, url, address) {
 */
 async function MakeCall(url, method, par): Promise<String> {
   try {
+    /* alert(JSON.stringify({
+        jsonrpc: '2.0',
+        method: method,
+        params: par,
+        id: '1'
+      })); // */
   	let response = await fetch(url+sj_coin_endpoint_path, 
   	{
       method: 'POST',

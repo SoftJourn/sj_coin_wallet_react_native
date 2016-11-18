@@ -15,7 +15,6 @@ import {
   ListView,
   Text,
   Navigator,
-  AlertIOS,
   Alert
 } from 'react-native';
 
@@ -30,32 +29,15 @@ class AddressBook extends Component {
       sending: this.props.sending
     };
   }
- 
-  sendCoins(address, text) {
-    var amount = parseInt(text);
-    if (amount>0) {
-      this.props.parent._sendCoins(address, amount);  
-    } else {
-      Alert.alert('Error', "Invalid amount entered");
-    }
-  }
 
   rowPressed(address) {
     var property = this.props.accounts.filter(prop => prop.address === address)[0];
-    if (this.state.sending) {
-      AlertIOS.prompt(
-       'Enter amount to send',
-       null,
-       text => this.sendCoins(address, text)
-      );
-    } else {
-      this.props.parent.setState({toAddress: address});
-      this.props.navigator.pop();
-    }
+    this.props.parent.setState({toAddress: address});
+    this.props.navigator.pop();
   }
 
   componentWillUnmount() {
-    this.props.onUnmount();
+    this.props.onUnmount(this.state.sending);
   }
 
   renderRow(rowData, sectionID, rowID) { 

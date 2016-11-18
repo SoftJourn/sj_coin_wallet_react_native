@@ -46,7 +46,6 @@ class SettingsPage extends Component {
       message: '',
       messages: '' 
     };
-    this.setAccountText = this.setAccountText.bind(this);
   }
 
   componentDidMount() {
@@ -137,7 +136,7 @@ class SettingsPage extends Component {
         passProps: {
           accounts: accounts, 
           sending: false, parent: this, 
-          onUnmount: async() => {
+          onUnmount: async(sending) => {
             //this._addressInput.setNativeProps({text: this.state.toAddress});
             this.props.parent.setState({account: this.state.toAddress});
             try {
@@ -193,6 +192,30 @@ class SettingsPage extends Component {
   }
 
   // https://www.npmjs.com/package/react-native-qrcode-scanner
+  onScanAccountPressed(event) {
+    console.log('onScanAccountPressed');
+    this.props.navigator.push({
+        component: QRCodeScanner,
+        title: 'Scan Code',
+        passProps: {
+          onRead: this.onScanAccountSuccess.bind(this),  
+          topContent: <Text style={styles.text}>Scan account address QR code.</Text>      
+        }
+    });
+  }
+
+  async onScanAccountSuccess(e) {
+    //alert(e.data);
+    this.setState({pub_key: e.data });
+    this.props.parent.setState({account: e.data});
+    try {
+      await AsyncStorage.setItem(STORAGE_KEYS.account_no, e.data);
+    } catch (error) {
+      this._appendMessage('AsyncStorage error: ' + error.message);
+    } 
+    this.props.navigator.pop();
+  }
+
   onScanPublicKeyPressed(event) {
     console.log('onScanPublicKeyPressed');
     this.props.navigator.push({
@@ -257,17 +280,19 @@ class SettingsPage extends Component {
         <Text style={styles.label}>
           Account address:
         </Text>
+        <Text style={styles.text}>
+          {this.state.toAddress}
+        </Text>
         <View style={styles.flowRight}>
-          <TextInput
-            ref={component => this._addressInput = component}
-            style={styles.textInput}
-            value={this.state.toAddress}
-            onChange={this.onAddressChanged.bind(this)}
-            placeholder='Account address'/>
           <TouchableHighlight style={styles.button}
                               onPress={this.onAccountPressed.bind(this)}
                               underlayColor='#99d9f4'>
-            <Text style={styles.buttonText}> ? </Text>
+            <Text style={styles.buttonText}> Select </Text>            
+          </TouchableHighlight>
+          <TouchableHighlight style={styles.button}
+                              onPress={this.onScanAccountPressed.bind(this)}
+                              underlayColor='#99d9f4'>
+            <Text style={styles.buttonText}> Scan </Text>
           </TouchableHighlight>
         </View>
         <Text style={styles.label}>
