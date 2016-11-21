@@ -18,6 +18,8 @@ import {
   View,
   AsyncStorage
 } from 'react-native';
+import {Actions, Scene, Router} from 'react-native-router-flux';
+import QRCodeScanner from 'react-native-qrcode-scanner';
 
 var ReactNative = require('react-native');
 var SettingsPage = require('./SettingsPage');
@@ -86,23 +88,19 @@ class SJCoinWallet extends Component {
           accounts.push(item);
         }
       });
-      this.props.navigator.push({
-        title: 'Address Book',
-        component: AddressBook,
-        passProps: {
-          accounts: accounts, 
-          sending: sending, 
-          parent: this,
-          onUnmount: async(sending) => {
-            if (sending) {
-              AlertIOS.prompt(
-                'Enter amount to send',
-                null,
-                text => this.sendCoins(this.state.toAddress, text)
-              );
-            }
+      Actions.pageAddress({
+        accounts: accounts, 
+        sending: sending, 
+        parentPage: this,
+        onUnmount: async(sending) => {
+          if (sending) {
+            AlertIOS.prompt(
+              'Enter amount to send',
+              null,
+              text => this.sendCoins(this.state.toAddress, text)
+            );
           }
-        }
+        } 
       });   
     } else {
       this.setState({ message: 'Accounts not loaded; please try again.'});
@@ -127,10 +125,8 @@ class SJCoinWallet extends Component {
   }
 
   onSettingsPressed() {
-      this.props.navigator.push({
-        title: 'Settings',
-        component: SettingsPage,
-        passProps: {parent: this}
+      Actions.pageSettings({
+        parentPage: this
       });
   }
 
@@ -198,14 +194,14 @@ class SJCoinWallet extends Component {
 
 export default class SJCoinWalletApp extends Component {
   render() {
-    return (
-      <ReactNative.NavigatorIOS
-        style={styles.container}
-        initialRoute={{
-          title: 'SJ Coin Wallet',
-          component: SJCoinWallet,
-        }}/>
-    ); /* SettingsPage SJCoinWallet */
+    return <Router>
+      <Scene key="root">
+        <Scene key="pageMain" component={SJCoinWallet} title="SJ Coin Wallet" initial={true} />
+        <Scene key="pageSettings" component={SettingsPage} title="Settings" />
+        <Scene key="pageAddress" component={AddressBook} title="Address Book" />
+        <Scene key="pageScanner" component={QRCodeScanner} title="Scan QR Code" />
+      </Scene>
+    </Router>
   }
 }
 

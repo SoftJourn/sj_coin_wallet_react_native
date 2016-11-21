@@ -17,6 +17,7 @@ import {
   Navigator,
   Alert
 } from 'react-native';
+import { Actions } from 'react-native-router-flux';
 
 class AddressBook extends Component {
 
@@ -32,8 +33,8 @@ class AddressBook extends Component {
 
   rowPressed(address) {
     var property = this.props.accounts.filter(prop => prop.address === address)[0];
-    this.props.parent.setState({toAddress: address});
-    this.props.navigator.pop();
+    this.props.parentPage.setState({toAddress: address});
+    Actions.pop();
   }
 
   componentWillUnmount() {

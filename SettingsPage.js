@@ -17,10 +17,7 @@ import {
   ActivityIndicator,
   AsyncStorage
 } from 'react-native';
-
-import QRCodeScanner from 'react-native-qrcode-scanner';
-
-var AddressBook = require('./AddressBook');
+import { Actions } from 'react-native-router-flux';
 
 var STORAGE_KEYS = {
   endpoint_url: 'endpoint_url',
@@ -130,20 +127,17 @@ class SettingsPage extends Component {
           accounts.push(item);
         }
       });
-      this.props.navigator.push({
-        title: 'Address Book',
-        component: AddressBook,
-        passProps: {
-          accounts: accounts, 
-          sending: false, parent: this, 
-          onUnmount: async(sending) => {
-            //this._addressInput.setNativeProps({text: this.state.toAddress});
-            this.props.parent.setState({account: this.state.toAddress});
-            try {
-              await AsyncStorage.setItem(STORAGE_KEYS.account_no, this.state.toAddress);
-            } catch (error) {
-              this._appendMessage('AsyncStorage error: ' + error.message);
-            }
+      Actions.pageAddress({
+        accounts: accounts, 
+        sending: false, 
+        parentPage: this, 
+        onUnmount: async(sending) => {
+          //this._addressInput.setNativeProps({text: this.state.toAddress});
+          this.props.parentPage.setState({account: this.state.toAddress});
+          try {
+            await AsyncStorage.setItem(STORAGE_KEYS.account_no, this.state.toAddress);
+          } catch (error) {
+            this._appendMessage('AsyncStorage error: ' + error.message);
           }
         }
       });      
@@ -164,7 +158,7 @@ class SettingsPage extends Component {
   async onEndpointUrlChanged(event) {
     console.log('onEndpointUrlChanged');
     this.setState({endpoint_url: event.nativeEvent.text });
-    this.props.parent.setState({endpoint_url: event.nativeEvent.text});
+    this.props.parentPage.setState({endpoint_url: event.nativeEvent.text});
     try {
       await AsyncStorage.setItem(STORAGE_KEYS.endpoint_url, event.nativeEvent.text);
     } catch (error) {
@@ -176,7 +170,7 @@ class SettingsPage extends Component {
   async onAddressChanged(event) {
     console.log('onAccountChanged');
     this.setState({toAddress: event.nativeEvent.text });
-    this.props.parent.setState({account: event.nativeEvent.text});
+    this.props.parentPage.setState({account: event.nativeEvent.text});
     try {
       await AsyncStorage.setItem(STORAGE_KEYS.account_no, event.nativeEvent.text);
     } catch (error) {
@@ -194,74 +188,62 @@ class SettingsPage extends Component {
   // https://www.npmjs.com/package/react-native-qrcode-scanner
   onScanAccountPressed(event) {
     console.log('onScanAccountPressed');
-    this.props.navigator.push({
-        component: QRCodeScanner,
-        title: 'Scan Code',
-        passProps: {
-          onRead: this.onScanAccountSuccess.bind(this),  
-          topContent: <Text style={styles.text}>Scan account address QR code.</Text>      
-        }
+    Actions.pageScanner({
+      onRead: this.onScanAccountSuccess.bind(this),  
+      topContent: <Text style={styles.text}>Scan account address QR code.</Text>      
     });
   }
 
   async onScanAccountSuccess(e) {
     //alert(e.data);
     this.setState({pub_key: e.data });
-    this.props.parent.setState({account: e.data});
+    this.props.parentPage.setState({account: e.data});
     try {
       await AsyncStorage.setItem(STORAGE_KEYS.account_no, e.data);
     } catch (error) {
       this._appendMessage('AsyncStorage error: ' + error.message);
     } 
-    this.props.navigator.pop();
+    Actions.pop();
   }
 
   onScanPublicKeyPressed(event) {
     console.log('onScanPublicKeyPressed');
-    this.props.navigator.push({
-        component: QRCodeScanner,
-        title: 'Scan Code',
-        passProps: {
-          onRead: this.onScanPublicKeySuccess.bind(this),  
-          topContent: <Text style={styles.text}>Scan public key QR code.</Text>      
-        }
+    Actions.pageScanner({
+      onRead: this.onScanPublicKeySuccess.bind(this),  
+      topContent: <Text style={styles.text}>Scan public key QR code.</Text>      
     });
   }
 
   async onScanPublicKeySuccess(e) {
     //alert(e.data);
     this.setState({pub_key: e.data });
-    this.props.parent.setState({pub_key: e.data});
+    this.props.parentPage.setState({pub_key: e.data});
     try {
       await AsyncStorage.setItem(STORAGE_KEYS.pub_key, e.data);
     } catch (error) {
       this._appendMessage('AsyncStorage error: ' + error.message);
     } 
-    this.props.navigator.pop();
+    Actions.pop();
   }
 
   onScanPrivateKeyPressed(event) {
     console.log('onScanPrivateKeyPressed');
-    this.props.navigator.push({
-        component: QRCodeScanner,
-        title: 'Scan Code',
-        passProps: {
-          onRead: this.onScanPrivateKeySuccess.bind(this),
-          topContent: <Text style={styles.text}>Scan private key QR code.</Text>,
-        }
+    Actions.pageScanner({
+      onRead: this.onScanPrivateKeySuccess.bind(this),
+      topContent: <Text style={styles.text}>Scan private key QR code.</Text>,
     });      
   }
 
   async onScanPrivateKeySuccess(e) {
     //alert(e.data);
     this.setState({priv_key: e.data });
-    this.props.parent.setState({priv_key: e.data});
+    this.props.parentPage.setState({priv_key: e.data});
     try {
       await AsyncStorage.setItem(STORAGE_KEYS.priv_key, e.data);
     } catch (error) {
       this._appendMessage('AsyncStorage error: ' + error.message);
     }
-    this.props.navigator.pop();
+    Actions.pop();
   }
 
   render() {
