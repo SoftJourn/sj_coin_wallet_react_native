@@ -196,7 +196,7 @@ class SettingsPage extends Component {
 
   async onScanAccountSuccess(e) {
     //alert(e.data);
-    this.setState({pub_key: e.data });
+    this.setState({toAddress: e.data });
     this.props.parentPage.setState({account: e.data});
     try {
       await AsyncStorage.setItem(STORAGE_KEYS.account_no, e.data);
